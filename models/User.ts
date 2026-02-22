@@ -64,6 +64,12 @@ const UserSchema = new Schema(
       trim: true,
     },
 
+    profileImage: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+
     // Reference to Better Auth user ID
     authUserId: {
       type: String,

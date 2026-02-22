@@ -23,6 +23,7 @@ export interface IEvent {
   capacity: number;
   status: EventStatus;
   category: EventCategory;
+  image?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,6 +40,7 @@ export interface EventResponse {
   capacity: number;
   status: EventStatus;
   category: EventCategory;
+  image?: string;
   registrationCount?: number;
   isRegistered?: boolean;
   createdAt: string;
@@ -62,6 +64,7 @@ export function formatEventResponse(
     capacity: event.capacity,
     status: event.status,
     category: event.category,
+    image: event.image || undefined,
     registrationCount,
     isRegistered,
     createdAt: event.createdAt.toISOString(),

@@ -1,198 +1,309 @@
-export default function HomePage() {
+import Link from "next/link";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { Button } from "@/components/ui/button";
+import {
+  CalendarCheck2,
+  Search,
+  MousePointerClick,
+  ShieldCheck,
+  LayoutDashboard,
+  ArrowRight,
+  MapPin,
+  Navigation,
+  DoorOpen,
+  Calendar,
+  Users,
+} from "lucide-react";
+
+const features = [
+  {
+    icon: Search,
+    title: "Discover",
+    description:
+      "Filter events by category, date, or department. Find exactly what sparks your interest in seconds.",
+  },
+  {
+    icon: MousePointerClick,
+    title: "One-Click Reg",
+    description:
+      "Skip the long forms. Register for any event with a single tap using your student profile.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Verified",
+    description:
+      "Every event is vetted by university admins to ensure high quality and genuine campus activities.",
+  },
+  {
+    icon: LayoutDashboard,
+    title: "Dashboard",
+    description:
+      "Personalized calendar for students and powerful analytics tools for event organizers.",
+  },
+];
+
+const previewEvents = [
+  {
+    date: "MAR 24",
+    category: "Technology",
+    venue: "Main Auditorium",
+    title: "National Tech Symposium 2026",
+    description:
+      "Join the brightest minds in engineering for a two-day event featuring keynote speakers from top tech firms.",
+  },
+  {
+    date: "APR 02",
+    category: "Arts & Music",
+    venue: "Open Grounds",
+    title: "Spring Beats Music Festival",
+    description:
+      "An evening filled with local student bands and guest performances to celebrate the spring semester.",
+  },
+  {
+    date: "APR 15",
+    category: "Workshop",
+    venue: "Business School",
+    title: "Entrepreneurship Boot Camp",
+    description:
+      "Learn the basics of building a startup from zero to one with successful alumni entrepreneurs.",
+  },
+];
+
+export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full">
-        {/* Main Card */}
-        <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 md:p-12 border border-white/20">
-          {/* Header Section */}
-          <div className="text-center mb-8">
-            <div className="inline-block mb-6">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 blur-2xl opacity-30 animate-pulse"></div>
-                <h1 className="relative text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  Coming Soon
-                </h1>
-              </div>
-            </div>
+    <div className="min-h-screen bg-[#f6f6f8] dark:bg-[#0f0a1e] text-slate-900 dark:text-slate-100">
+      <Navbar />
 
-            <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 mb-4">
-              College Event Aggregator
-            </h2>
-
-            <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto">
-              Your one-stop platform for discovering and managing college events
-            </p>
+      {/* Hero Section */}
+      <section className="relative overflow-hidden pt-20 pb-24 lg:pt-32 lg:pb-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <div className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-primary/10 text-primary ring-1 ring-inset ring-primary/20 mb-8 animate-fade-in">
+            <CalendarCheck2 className="h-4 w-4 mr-1.5" />
+            New: University-wide Career Fairs 2026
           </div>
 
-          {/* Status Badge */}
-          <div className="flex justify-center mb-8">
-            <div className="inline-flex items-center gap-2 px-6 py-3 bg-green-100 border border-green-300 rounded-full">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-green-800 font-semibold">
-                Backend API Ready
-              </span>
-              <svg
-                className="w-5 h-5 text-green-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+          <h1 className="text-5xl lg:text-7xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-primary to-slate-900 dark:from-white dark:via-primary dark:to-white animate-fade-in-up">
+            Discover College Events.
+            <br />
+            One Platform.
+          </h1>
+
+          <p className="max-w-2xl mx-auto text-lg text-slate-600 dark:text-slate-400 mb-10 leading-relaxed animate-fade-in-up delay-100">
+            Connect with your campus like never before. From hackathons to
+            cultural fests, find everything happening in your university in one
+            unified feed.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up delay-200">
+            <Link href="/events">
+              <Button
+                size="lg"
+                className="w-full sm:w-auto bg-primary text-white px-8 py-6 rounded-xl font-bold shadow-lg shadow-primary/25 hover:scale-105 transition-transform text-base"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-          </div>
-
-          {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            {/* Feature 1 */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200">
-              <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-4">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <h3 className="font-bold text-gray-800 mb-2">Event Discovery</h3>
-              <p className="text-gray-600 text-sm">
-                Browse and search events across multiple colleges
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 border border-purple-200">
-              <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-4">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                  />
-                </svg>
-              </div>
-              <h3 className="font-bold text-gray-800 mb-2">Role Management</h3>
-              <p className="text-gray-600 text-sm">
-                Students, organizers, and admins with specific permissions
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-2xl p-6 border border-indigo-200">
-              <div className="w-12 h-12 bg-indigo-500 rounded-xl flex items-center justify-center mb-4">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                  />
-                </svg>
-              </div>
-              <h3 className="font-bold text-gray-800 mb-2">OAuth Support</h3>
-              <p className="text-gray-600 text-sm">
-                Sign in with Google or GitHub for quick access
-              </p>
-            </div>
-          </div>
-
-          {/* Progress Info */}
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-200">
-            <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
-              <svg
-                className="w-5 h-5 text-blue-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+                Explore Events
+              </Button>
+            </Link>
+            <Link href="/sign-up">
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full sm:w-auto px-8 py-6 rounded-xl font-bold border-2 border-slate-200 dark:border-slate-700 hover:border-primary transition-colors text-base"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-              Development Status
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-700">Backend API</span>
-                <span className="text-green-600 font-semibold">✓ Complete</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-green-500 h-2 rounded-full"
-                  style={{ width: "100%" }}
-                ></div>
-              </div>
-
-              <div className="flex items-center justify-between mt-4">
-                <span className="text-gray-700">Frontend Interface</span>
-                <span className="text-yellow-600 font-semibold">
-                  ⏳ In Progress
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-gradient-to-r from-yellow-400 to-yellow-500 h-2 rounded-full animate-pulse"
-                  style={{ width: "15%" }}
-                ></div>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="mt-8 text-center">
-            <p className="text-gray-500 text-sm">
-              Built with Next.js, MongoDB, Better Auth & TypeScript
-            </p>
-            <div className="flex items-center justify-center gap-4 mt-4">
-              <span className="px-3 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-700">
-                Next.js 15
-              </span>
-              <span className="px-3 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-700">
-                TypeScript
-              </span>
-              <span className="px-3 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-700">
-                MongoDB
-              </span>
-              <span className="px-3 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-700">
-                Tailwind CSS
-              </span>
-            </div>
+                Organize an Event
+              </Button>
+            </Link>
           </div>
         </div>
 
-        {/* Decorative Elements */}
-        <div className="absolute top-10 left-10 w-20 h-20 bg-blue-400 rounded-full blur-3xl opacity-20 animate-pulse"></div>
-        <div
-          className="absolute bottom-10 right-10 w-32 h-32 bg-purple-400 rounded-full blur-3xl opacity-20 animate-pulse"
-          style={{ animationDelay: "1s" }}
-        ></div>
-      </div>
+        {/* Background decoration */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full -z-0 pointer-events-none opacity-20">
+          <div className="absolute top-0 right-1/4 w-72 h-72 bg-primary rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-primary/40 rounded-full blur-3xl" />
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-24 bg-white dark:bg-slate-900/50" id="features">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold mb-4">
+              Everything you need to stay involved
+            </h2>
+            <div className="h-1.5 w-20 bg-primary mx-auto rounded-full" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, i) => (
+              <div
+                key={feature.title}
+                className="p-8 rounded-2xl bg-[#f6f6f8] dark:bg-slate-800 border border-slate-100 dark:border-slate-700 hover:shadow-xl transition-all duration-300 group animate-fade-in-up"
+                style={{ animationDelay: `${i * 100}ms` }}
+              >
+                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                  <feature.icon className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Upcoming Events Preview */}
+      <section className="py-24" id="events">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 gap-4">
+            <div>
+              <h2 className="text-3xl font-bold mb-2">Upcoming Events</h2>
+              <p className="text-slate-600 dark:text-slate-400">
+                Handpicked activities happening this season
+              </p>
+            </div>
+            <Link
+              href="/events"
+              className="text-primary font-semibold flex items-center hover:underline transition-all"
+            >
+              View All Events
+              <ArrowRight className="ml-1 h-4 w-4" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {previewEvents.map((event, i) => (
+              <div
+                key={event.title}
+                className="group bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-slate-100 dark:border-slate-700 animate-fade-in-up"
+                style={{ animationDelay: `${i * 100}ms` }}
+              >
+                {/* Image placeholder */}
+                <div className="relative h-48 bg-gradient-to-br from-primary/20 to-primary/5">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Calendar className="h-16 w-16 text-primary/30 group-hover:scale-110 transition-transform duration-300" />
+                  </div>
+                  <div className="absolute top-4 left-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-bold text-primary shadow-sm">
+                    {event.date}
+                  </div>
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider">
+                      {event.category}
+                    </span>
+                    <span className="text-slate-400 text-xs flex items-center">
+                      <MapPin className="h-3 w-3 mr-1" />
+                      {event.venue}
+                    </span>
+                  </div>
+                  <h4 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">
+                    {event.title}
+                  </h4>
+                  <p className="text-slate-600 dark:text-slate-400 text-sm mb-6 line-clamp-2">
+                    {event.description}
+                  </p>
+                  <Link href="/events">
+                    <Button className="w-full bg-primary text-white hover:bg-primary/90 font-semibold transition-all">
+                      View Details
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Campus Teaser */}
+      <section className="py-24 bg-primary/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="animate-fade-in">
+              <h2 className="text-4xl font-bold mb-6">
+                Localized for your Campus
+              </h2>
+              <p className="text-lg text-slate-600 dark:text-slate-400 mb-8">
+                CampusConnect integrates with your university to provide
+                seamless event discovery, real-time updates, and venue
+                directions for every event on campus.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
+                    <Navigation className="h-5 w-5" />
+                  </div>
+                  <span className="font-medium">
+                    Real-time navigation to venues
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
+                    <DoorOpen className="h-5 w-5" />
+                  </div>
+                  <span className="font-medium">
+                    Indoor mapping for large buildings
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0">
+                    <Users className="h-5 w-5" />
+                  </div>
+                  <span className="font-medium">
+                    Community-driven event suggestions
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-3xl overflow-hidden shadow-2xl h-[400px] relative border-4 border-white dark:border-slate-800 animate-fade-in-up">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center">
+                <div className="text-center">
+                  <MapPin className="h-20 w-20 text-primary/40 mx-auto mb-4 animate-float" />
+                  <p className="text-primary/60 font-bold text-lg">
+                    Interactive Campus Map
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24 bg-white dark:bg-slate-900/50">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-4xl font-bold mb-6 animate-fade-in">
+            Ready to get started?
+          </h2>
+          <p className="text-lg text-slate-600 dark:text-slate-400 mb-10 animate-fade-in-up">
+            Join thousands of students already discovering campus events on
+            CampusConnect.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up delay-100">
+            <Link href="/sign-up">
+              <Button
+                size="lg"
+                className="bg-primary text-white px-10 py-6 rounded-xl font-bold shadow-lg shadow-primary/25 hover:scale-105 transition-transform text-base"
+              >
+                Create Free Account
+              </Button>
+            </Link>
+            <Link href="/events">
+              <Button
+                size="lg"
+                variant="outline"
+                className="px-10 py-6 rounded-xl font-bold border-2 hover:border-primary transition-colors text-base"
+              >
+                Browse Events
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
     </div>
   );
 }

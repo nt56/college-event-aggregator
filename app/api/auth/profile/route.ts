@@ -55,8 +55,11 @@ export async function PATCH(request: NextRequest) {
       return ApiErrors.validationError(formatZodErrors(validationResult.error));
     }
 
-    const { firstName, lastName, phone, bio, collegeId } =
+    const { firstName, lastName, phone, bio, collegeId, gender, dateOfBirth } =
       validationResult.data;
+
+    // Accept profileImage from body (separate from validated fields)
+    const profileImage = body.profileImage;
 
     // Build Better Auth update (it only knows about "name")
     const betterAuthUpdate: Record<string, string> = {};
@@ -91,10 +94,14 @@ export async function PATCH(request: NextRequest) {
     if (phone !== undefined) updateData.phone = phone;
     if (bio !== undefined) updateData.bio = bio;
     if (collegeId !== undefined) updateData.collegeId = collegeId || undefined;
+    if (gender !== undefined) updateData.gender = gender;
+    if (dateOfBirth !== undefined)
+      updateData.dateOfBirth = new Date(dateOfBirth);
+    if (profileImage !== undefined) updateData.profileImage = profileImage;
 
     const updatedUser = await User.findOneAndUpdate(
       { email: authResult.userEmail },
-      updateData,
+      { $set: updateData },
       { new: true, runValidators: true },
     );
 
@@ -109,7 +116,10 @@ export async function PATCH(request: NextRequest) {
         email: updatedUser.email,
         phone: updatedUser.phone,
         bio: updatedUser.bio,
+        profileImage: updatedUser.profileImage || null,
         collegeId: updatedUser.collegeId?.toString(),
+        gender: updatedUser.gender,
+        dateOfBirth: updatedUser.dateOfBirth,
       },
       "Profile updated successfully",
     );

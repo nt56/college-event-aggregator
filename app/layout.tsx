@@ -1,21 +1,20 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import ReduxProvider from "@/components/providers/ReduxProvider";
+import ThemeProvider from "@/components/providers/ThemeProvider";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "College Event Aggregator",
+  title: "CampusConnect — College Event Aggregator",
   description:
-    "An app that aggregates events from various college websites into one convenient platform.",
+    "Discover and manage college events across campuses. Browse events, register with a click, and stay connected with your campus community.",
 };
 
 export default function RootLayout({
@@ -24,11 +23,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans antialiased`}>
+        <ThemeProvider>
+          <ReduxProvider>
+            <TooltipProvider delayDuration={200}>
+              {children}
+              <Toaster richColors position="top-right" />
+            </TooltipProvider>
+          </ReduxProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

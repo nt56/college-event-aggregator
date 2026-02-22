@@ -23,6 +23,8 @@ export async function POST(request: NextRequest) {
     if (!headers.get("origin")) {
       headers.set("origin", appUrl);
     }
+    // Better Auth requires application/json — override whatever the client sent
+    headers.set("content-type", "application/json");
 
     // Create a new request with the Origin header for Better Auth
     const modifiedRequest = new Request(`${appUrl}/api/auth/sign-out`, {

@@ -64,6 +64,12 @@ const EventSchema = new Schema(
       ],
       default: "other",
     },
+
+    image: {
+      type: String,
+      trim: true,
+      default: null,
+    },
   },
   {
     timestamps: true,

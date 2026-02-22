@@ -52,6 +52,8 @@ export const createEventSchema = z.object({
     ])
     .optional()
     .default("other"),
+
+  image: z.string().optional(),
 });
 
 /**

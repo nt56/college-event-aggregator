@@ -1,0 +1,307 @@
+"use client";
+
+import { useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchEventById, clearCurrentEvent } from "@/store/slices/eventsSlice";
+import {
+  registerForEvent,
+  cancelRegistration,
+  fetchRegistrations,
+} from "@/store/slices/registrationsSlice";
+import { EventDetailSkeleton } from "@/components/common/Skeletons";
+import { EventStatusBadge, CategoryBadge } from "@/components/common/Badges";
+import { Button } from "@/components/ui/button";
+import { format, isPast } from "date-fns";
+import {
+  Calendar,
+  MapPin,
+  Clock,
+  ArrowLeft,
+  Users,
+  CheckCircle2,
+  Share2,
+} from "lucide-react";
+import Image from "next/image";
+import { toast } from "sonner";
+
+export default function EventDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { currentEvent: event, isLoading } = useAppSelector((s) => s.events);
+  const { user, isAuthenticated } = useAppSelector((s) => s.auth);
+  const { isLoading: regLoading } = useAppSelector((s) => s.registrations);
+
+  useEffect(() => {
+    if (id) dispatch(fetchEventById(id));
+    return () => {
+      dispatch(clearCurrentEvent());
+    };
+  }, [dispatch, id]);
+
+  const handleRegister = async () => {
+    if (!isAuthenticated) {
+      router.push("/sign-in");
+      return;
+    }
+    if (!id) return;
+    try {
+      await dispatch(registerForEvent(id)).unwrap();
+      toast.success("Successfully registered for the event!");
+      dispatch(fetchEventById(id));
+    } catch (err) {
+      toast.error(typeof err === "string" ? err : "Failed to register");
+    }
+  };
+
+  const handleCancelRegistration = async () => {
+    if (!id) return;
+    try {
+      await dispatch(cancelRegistration({ eventId: id })).unwrap();
+      toast.success("Registration cancelled");
+      dispatch(fetchEventById(id));
+    } catch (err) {
+      toast.error(
+        typeof err === "string" ? err : "Failed to cancel registration",
+      );
+    }
+  };
+
+  if (isLoading || !event) return <EventDetailSkeleton />;
+
+  const eventDate = event.date ? new Date(event.date) : null;
+  const deadline = event.registrationDeadline
+    ? new Date(event.registrationDeadline)
+    : null;
+  const deadlinePassed = deadline ? isPast(deadline) : false;
+  const fillPercent =
+    event.capacity && event.registrationCount != null
+      ? Math.round((event.registrationCount / event.capacity) * 100)
+      : 0;
+  const spotsLeft =
+    event.capacity && event.registrationCount != null
+      ? event.capacity - event.registrationCount
+      : null;
+
+  const organizerName =
+    typeof event.organizerId === "object" && event.organizerId
+      ? `${(event.organizerId as unknown as { firstName: string; lastName: string }).firstName} ${(event.organizerId as unknown as { firstName: string; lastName: string }).lastName}`
+      : "Event Organizer";
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Back button */}
+      <button
+        onClick={() => router.back()}
+        className="flex items-center gap-2 text-sm text-slate-500 hover:text-primary mb-6 transition-colors"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to Events
+      </button>
+
+      {/* Hero Image */}
+      <header className="mb-10 animate-fade-in">
+        <div className="relative w-full h-[400px] overflow-hidden rounded-xl mb-8 shadow-xl bg-gradient-to-br from-primary/20 to-primary/5">
+          {event.image ? (
+            <Image
+              src={event.image}
+              alt={event.title}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Calendar className="h-24 w-24 text-primary/20" />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 p-8 text-white">
+            <div className="flex gap-2 mb-4">
+              {event.category && <CategoryBadge category={event.category} />}
+              {event.status && <EventStatusBadge status={event.status} />}
+            </div>
+            <h1 className="text-4xl md:text-5xl font-extrabold mb-2">
+              {event.title}
+            </h1>
+            <p className="text-slate-200 text-lg flex items-center gap-2">
+              <Users className="h-4 w-4" /> Hosted by {organizerName}
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        {/* Left Column */}
+        <div className="lg:col-span-8 space-y-10 animate-fade-in-up">
+          {/* Info Quick Grid */}
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Calendar className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase">
+                  Date & Time
+                </p>
+                <p className="font-semibold">
+                  {eventDate ? format(eventDate, "MMM dd, yyyy") : "TBA"}
+                </p>
+                <p className="text-sm text-slate-500">
+                  {eventDate ? format(eventDate, "hh:mm a") : ""}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4 border-l border-slate-100 dark:border-slate-800 md:pl-6">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <MapPin className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase">
+                  Venue
+                </p>
+                <p className="font-semibold">{event.venue || "TBA"}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4 border-l border-slate-100 dark:border-slate-800 md:pl-6">
+              <div
+                className={`p-3 rounded-lg ${deadlinePassed ? "bg-red-500/10" : "bg-primary/10"}`}
+              >
+                <Clock
+                  className={`h-5 w-5 ${deadlinePassed ? "text-red-500" : "text-primary"}`}
+                />
+              </div>
+              <div>
+                <p
+                  className={`text-xs font-bold uppercase ${deadlinePassed ? "text-red-500" : "text-slate-500"}`}
+                >
+                  Deadline
+                </p>
+                <p className="font-semibold">
+                  {deadline ? format(deadline, "MMM dd, yyyy") : "TBA"}
+                </p>
+                {deadlinePassed && (
+                  <p className="text-sm text-red-400 font-medium">
+                    Registration closed
+                  </p>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* Description */}
+          <section className="prose prose-slate dark:prose-invert max-w-none">
+            <h2 className="text-2xl font-bold mb-4">About the Event</h2>
+            <div className="text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-line">
+              {event.description}
+            </div>
+          </section>
+        </div>
+
+        {/* Right Column: Sidebar */}
+        <div className="lg:col-span-4 animate-fade-in-up delay-100">
+          <aside className="sticky top-24 space-y-6">
+            {/* Main CTA Card */}
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-lg">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <span className="text-slate-500 text-sm block">
+                    Entry Fee
+                  </span>
+                  <span className="text-3xl font-extrabold text-primary">
+                    Free
+                  </span>
+                </div>
+                <button className="p-2 text-slate-400 hover:text-primary transition-colors">
+                  <Share2 className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Capacity Indicator */}
+              {event.capacity && (
+                <div className="mb-6">
+                  <div className="flex justify-between items-end mb-2">
+                    <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                      Registration Capacity
+                    </span>
+                    <span className="text-sm font-bold text-primary">
+                      {event.registrationCount || 0}/{event.capacity} joined
+                    </span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(fillPercent, 100)}%` }}
+                    />
+                  </div>
+                  {spotsLeft !== null && spotsLeft > 0 && (
+                    <p className="text-[10px] text-slate-400 mt-2 uppercase tracking-widest font-bold text-center">
+                      {spotsLeft} spots remaining
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {event.isRegistered ? (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-center gap-2 text-green-600 font-semibold py-3">
+                    <CheckCircle2 className="h-5 w-5" />
+                    You&apos;re Registered
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="w-full border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900/20"
+                    onClick={handleCancelRegistration}
+                    disabled={regLoading}
+                  >
+                    {regLoading ? "Cancelling..." : "Cancel Registration"}
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20"
+                  onClick={handleRegister}
+                  disabled={
+                    regLoading ||
+                    deadlinePassed ||
+                    (spotsLeft !== null && spotsLeft <= 0)
+                  }
+                >
+                  {regLoading
+                    ? "Registering..."
+                    : deadlinePassed
+                      ? "Registration Closed"
+                      : spotsLeft !== null && spotsLeft <= 0
+                        ? "Event Full"
+                        : "Register Now"}
+                </Button>
+              )}
+            </div>
+
+            {/* Organizer Card */}
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">
+                Organizer
+              </h4>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="text-primary font-bold text-lg">
+                    {organizerName.charAt(0)}
+                  </span>
+                </div>
+                <div>
+                  <h5 className="font-bold text-slate-900 dark:text-white">
+                    {organizerName}
+                  </h5>
+                  <p className="text-sm text-slate-500">Event Organizer</p>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  );
+}

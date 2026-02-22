@@ -37,7 +37,9 @@ export const signUpSchema = z
     }),
     dateOfBirth: z
       .string()
-      .datetime({ message: "Invalid date format. Use ISO 8601 format." })
+      .refine((val) => !isNaN(Date.parse(val)), {
+        message: "Invalid date format. Use YYYY-MM-DD or ISO 8601 format.",
+      })
       .refine(
         (dob) => {
           const age = Math.floor(
@@ -101,7 +103,7 @@ export const changePasswordSchema = z
 // ===========================
 // PROFILE UPDATE SCHEMA
 // ===========================
-// Users can update their personal info, but NEVER their role.
+// Users can update their personal info, but NEVER their role or email.
 export const updateProfileSchema = z.object({
   firstName: z
     .string()
@@ -122,6 +124,21 @@ export const updateProfileSchema = z.object({
     .optional(),
   bio: z.string().max(500, "Bio must be less than 500 characters").optional(),
   collegeId: z.string().optional(),
+  gender: z.enum(["male", "female", "other", "prefer-not-to-say"]).optional(),
+  dateOfBirth: z
+    .string()
+    .datetime({ message: "Invalid date format. Use ISO 8601 format." })
+    .refine(
+      (dob) => {
+        const age = Math.floor(
+          (Date.now() - new Date(dob).getTime()) /
+            (365.25 * 24 * 60 * 60 * 1000),
+        );
+        return age >= 16;
+      },
+      { message: "You must be at least 16 years old" },
+    )
+    .optional(),
 });
 
 // Export types

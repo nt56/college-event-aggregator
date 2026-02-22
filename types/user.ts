@@ -13,6 +13,7 @@ export interface IUser {
   dateOfBirth?: Date;
   phone?: string;
   bio?: string;
+  profileImage?: string;
   collegeId?: Types.ObjectId;
   authUserId?: string;
   createdAt: Date;
@@ -29,6 +30,7 @@ export interface UserResponse {
   dateOfBirth?: string;
   phone?: string;
   bio?: string;
+  profileImage?: string;
   collegeId?: string;
   createdAt: string;
   updatedAt: string;
@@ -45,6 +47,7 @@ export function formatUserResponse(user: IUser): UserResponse {
     dateOfBirth: user.dateOfBirth?.toISOString(),
     phone: user.phone,
     bio: user.bio,
+    profileImage: user.profileImage || undefined,
     collegeId: user.collegeId?.toString(),
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),
