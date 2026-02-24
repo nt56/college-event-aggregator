@@ -49,4 +49,3 @@ College students often miss events because information is scattered across Whats
 > **Security:** Every new user is assigned the `student` role. Only an admin can promote users to `organizer` or `admin` via the API. Users **cannot** set their own role.
 
 ---
-
