@@ -12,15 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  CalendarCheck2,
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  Loader2,
-  ArrowRight,
-} from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
+import Image from "next/image";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -98,11 +91,15 @@ export function SignInForm() {
       {/* Brand Logo */}
       <div className="mb-8 text-center animate-fade-in">
         <div className="flex items-center justify-center gap-2 mb-2">
-          <div className="bg-primary p-2 rounded-lg flex items-center justify-center">
-            <CalendarCheck2 className="h-7 w-7 text-white" />
-          </div>
+          <Image
+            src="/logo.jpg"
+            alt="CollegeEventAggregator Logo"
+            width={48}
+            height={48}
+            className="rounded-lg"
+          />
           <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-            CampusConnect
+            CollegeEvent<span className="text-primary">Aggregator</span>
           </span>
         </div>
         <p className="text-slate-500 dark:text-slate-400 text-sm">
@@ -140,6 +137,7 @@ export function SignInForm() {
                   type="email"
                   placeholder="name@university.edu"
                   className="pl-10 py-3 h-12 border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-primary"
+                  disabled={isSubmitting || isRedirecting}
                   {...register("email")}
                 />
               </div>
@@ -165,6 +163,7 @@ export function SignInForm() {
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   className="pl-10 pr-10 py-3 h-12 border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-primary"
+                  disabled={isSubmitting || isRedirecting}
                   {...register("password")}
                 />
                 <button

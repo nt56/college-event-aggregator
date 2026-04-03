@@ -29,20 +29,41 @@ import {
   XCircle,
   Search,
 } from "lucide-react";
+import Image from "next/image";
 
 const signUpSchema = z
   .object({
     firstName: z.string().min(2, "First name must be at least 2 characters"),
     lastName: z.string().min(2, "Last name must be at least 2 characters"),
     email: z.string().email("Please enter a valid email address"),
-    gender: z.string().optional(),
-    dateOfBirth: z.string().optional(),
+    gender: z.enum(["male", "female", "other", "prefer-not-to-say"], {
+      message: "Please select a gender",
+    }),
+    dateOfBirth: z
+      .string()
+      .min(1, "Date of birth is required")
+      .refine((val) => !isNaN(Date.parse(val)), {
+        message: "Invalid date",
+      })
+      .refine(
+        (dob) => {
+          const age = Math.floor(
+            (Date.now() - new Date(dob).getTime()) /
+              (365.25 * 24 * 60 * 60 * 1000),
+          );
+          return age >= 16;
+        },
+        { message: "You must be at least 16 years old" },
+      ),
     phone: z.string().optional(),
     collegeId: z.string().optional(),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
-      .regex(/[!@#$%^&*(),.?":{}|<>]/, "Must include a special character"),
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        "Must include uppercase, lowercase, and a number",
+      ),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -62,6 +83,7 @@ export function SignUpForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [collegeSearch, setCollegeSearch] = useState("");
+  const [selectedCollegeName, setSelectedCollegeName] = useState("");
 
   useEffect(() => {
     dispatch(fetchColleges({ limit: "100" }));
@@ -79,7 +101,7 @@ export function SignUpForm() {
       firstName: "",
       lastName: "",
       email: "",
-      gender: "",
+      gender: undefined,
       dateOfBirth: "",
       phone: "",
       collegeId: "",
@@ -92,7 +114,9 @@ export function SignUpForm() {
 
   const passwordChecks = {
     length: password?.length >= 8,
-    special: /[!@#$%^&*(),.?":{}|<>]/.test(password || ""),
+    uppercase: /[A-Z]/.test(password || ""),
+    lowercase: /[a-z]/.test(password || ""),
+    number: /\d/.test(password || ""),
   };
 
   const filteredColleges = colleges.filter((c) =>
@@ -157,11 +181,15 @@ export function SignUpForm() {
           <div className="p-8 md:p-12">
             {/* Header */}
             <div className="text-center mb-10">
-              <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-4">
-                <GraduationCap className="h-7 w-7 text-primary" />
-              </div>
+              <Image
+                src="/logo.jpg"
+                alt="CollegeEventAggregator Logo"
+                width={56}
+                height={56}
+                className="mx-auto mb-4 rounded-lg"
+              />
               <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                Join CampusConnect
+                Join CollegeEventAggregator Today
               </h1>
               <p className="text-slate-500 dark:text-slate-400 mt-2">
                 Start discovering college events near you today.
@@ -225,19 +253,36 @@ export function SignUpForm() {
                   <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 block">
                     Gender
                   </Label>
-                  <Select onValueChange={(val) => setValue("gender", val)}>
+                  <Select
+                    onValueChange={(val) =>
+                      setValue(
+                        "gender",
+                        val as
+                          | "male"
+                          | "female"
+                          | "other"
+                          | "prefer-not-to-say",
+                        { shouldValidate: true },
+                      )
+                    }
+                  >
                     <SelectTrigger className="h-11 border-slate-300 dark:border-slate-700">
                       <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="male">Male</SelectItem>
                       <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="non-binary">Non-binary</SelectItem>
+                      <SelectItem value="other">Other / Non-binary</SelectItem>
                       <SelectItem value="prefer-not-to-say">
                         Prefer not to say
                       </SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.gender && (
+                    <p className="text-xs text-red-500 mt-1">
+                      {errors.gender.message}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 block">
@@ -248,6 +293,11 @@ export function SignUpForm() {
                     className="h-11 border-slate-300 dark:border-slate-700"
                     {...register("dateOfBirth")}
                   />
+                  {errors.dateOfBirth && (
+                    <p className="text-xs text-red-500 mt-1">
+                      {errors.dateOfBirth.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -262,6 +312,11 @@ export function SignUpForm() {
                     className="h-11 border-slate-300 dark:border-slate-700"
                     {...register("phone")}
                   />
+                  {errors.phone && (
+                    <p className="text-xs text-red-500 mt-1">
+                      {errors.phone.message}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <Label className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 block">
@@ -272,27 +327,34 @@ export function SignUpForm() {
                     <Input
                       placeholder="Search institution..."
                       className="h-11 pl-10 border-slate-300 dark:border-slate-700"
-                      value={collegeSearch}
-                      onChange={(e) => setCollegeSearch(e.target.value)}
+                      value={selectedCollegeName || collegeSearch}
+                      onChange={(e) => {
+                        setCollegeSearch(e.target.value);
+                        setSelectedCollegeName("");
+                        if (!e.target.value) setValue("collegeId", "");
+                      }}
                     />
                   </div>
-                  {collegeSearch && filteredColleges.length > 0 && (
-                    <div className="mt-1 max-h-40 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg">
-                      {filteredColleges.map((college) => (
-                        <button
-                          key={college.id || college._id}
-                          type="button"
-                          className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                          onClick={() => {
-                            setValue("collegeId", college.id || college._id);
-                            setCollegeSearch(college.name);
-                          }}
-                        >
-                          {college.name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                  {!selectedCollegeName &&
+                    collegeSearch &&
+                    filteredColleges.length > 0 && (
+                      <div className="mt-1 max-h-40 overflow-y-auto bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg z-10 relative">
+                        {filteredColleges.map((college) => (
+                          <button
+                            key={college.id || college._id}
+                            type="button"
+                            className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                            onClick={() => {
+                              setValue("collegeId", college.id || college._id);
+                              setSelectedCollegeName(college.name);
+                              setCollegeSearch("");
+                            }}
+                          >
+                            {college.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                 </div>
               </div>
 
@@ -307,7 +369,10 @@ export function SignUpForm() {
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
                       className={`h-11 pr-10 ${
-                        password && !passwordChecks.special
+                        password &&
+                        (!passwordChecks.uppercase ||
+                          !passwordChecks.lowercase ||
+                          !passwordChecks.number)
                           ? "border-red-400 dark:border-red-500"
                           : "border-slate-300 dark:border-slate-700"
                       }`}
@@ -343,17 +408,45 @@ export function SignUpForm() {
                       </div>
                       <div
                         className={`flex items-center text-xs ${
-                          passwordChecks.special
+                          passwordChecks.uppercase
                             ? "text-green-600 dark:text-green-400"
                             : "text-red-600 dark:text-red-400"
                         }`}
                       >
-                        {passwordChecks.special ? (
+                        {passwordChecks.uppercase ? (
                           <CheckCircle2 className="h-3 w-3 mr-1" />
                         ) : (
                           <XCircle className="h-3 w-3 mr-1" />
                         )}
-                        <span>Must include a special character</span>
+                        <span>At least one uppercase letter</span>
+                      </div>
+                      <div
+                        className={`flex items-center text-xs ${
+                          passwordChecks.lowercase
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-red-600 dark:text-red-400"
+                        }`}
+                      >
+                        {passwordChecks.lowercase ? (
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                        ) : (
+                          <XCircle className="h-3 w-3 mr-1" />
+                        )}
+                        <span>At least one lowercase letter</span>
+                      </div>
+                      <div
+                        className={`flex items-center text-xs ${
+                          passwordChecks.number
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-red-600 dark:text-red-400"
+                        }`}
+                      >
+                        {passwordChecks.number ? (
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                        ) : (
+                          <XCircle className="h-3 w-3 mr-1" />
+                        )}
+                        <span>At least one number</span>
                       </div>
                     </div>
                   )}

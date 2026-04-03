@@ -62,8 +62,10 @@ export default function UserManagementPage() {
   const filteredUsers = users.filter(
     (u) =>
       !search ||
-      `${u.firstName} ${u.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase())
+      `${u.firstName} ${u.lastName}`
+        .toLowerCase()
+        .includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -93,17 +95,23 @@ export default function UserManagementPage() {
       {/* Table */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
         {isLoading ? (
-          <div className="p-4 space-y-4">
-            <TableRowSkeleton cols={5} />
-            <TableRowSkeleton cols={5} />
-            <TableRowSkeleton cols={5} />
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                <TableRowSkeleton cols={5} />
+                <TableRowSkeleton cols={5} />
+                <TableRowSkeleton cols={5} />
+              </tbody>
+            </table>
           </div>
         ) : filteredUsers.length === 0 ? (
           <div className="p-12">
             <EmptyState
               icon={Users}
               title="No users found"
-              description={search ? "Try a different search term." : "No users yet."}
+              description={
+                search ? "Try a different search term." : "No users yet."
+              }
             />
           </div>
         ) : (

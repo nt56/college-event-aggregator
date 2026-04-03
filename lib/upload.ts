@@ -1,6 +1,4 @@
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
-import { existsSync } from "fs";
+import cloudinary from "@/lib/cloudinary";
 
 export type UploadCategory = "profiles" | "events";
 
@@ -9,8 +7,9 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 interface UploadResult {
   success: true;
-  filePath: string; // e.g. "/uploads/profiles/abc123.webp"
+  filePath: string; // Cloudinary secure URL
   fileName: string;
+  publicId: string; // Cloudinary public ID for deletion
 }
 
 interface UploadError {
@@ -19,8 +18,8 @@ interface UploadError {
 }
 
 /**
- * Save an uploaded file to public/uploads/<category>/
- * Returns the public URL path (relative to domain root).
+ * Upload a file to Cloudinary under a folder based on category.
+ * Returns the Cloudinary secure URL for storage in user/event documents.
  */
 export async function saveUploadedFile(
   file: File,
@@ -42,42 +41,46 @@ export async function saveUploadedFile(
     };
   }
 
-  // Generate unique filename
-  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const uniqueName = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}.${ext}`;
-
-  // Ensure directory exists
-  const uploadDir = path.join(process.cwd(), "public", "uploads", category);
-  if (!existsSync(uploadDir)) {
-    await mkdir(uploadDir, { recursive: true });
-  }
-
-  // Write file
+  // Convert file to base64 data URI for Cloudinary upload
   const buffer = Buffer.from(await file.arrayBuffer());
-  const fullPath = path.join(uploadDir, uniqueName);
-  await writeFile(fullPath, buffer);
+  const base64 = buffer.toString("base64");
+  const dataURI = `data:${file.type};base64,${base64}`;
 
-  const publicPath = `/uploads/${category}/${uniqueName}`;
+  // Upload to Cloudinary
+  const result = await cloudinary.uploader.upload(dataURI, {
+    folder: `college-event-aggregator/${category}`,
+    resource_type: "image",
+    transformation: [{ quality: "auto", fetch_format: "auto" }],
+  });
 
   return {
     success: true,
-    filePath: publicPath,
-    fileName: uniqueName,
+    filePath: result.secure_url,
+    fileName: result.public_id.split("/").pop() || result.public_id,
+    publicId: result.public_id,
   };
 }
 
 /**
- * Delete an uploaded file (best-effort, won't throw)
+ * Delete an uploaded file from Cloudinary (best-effort, won't throw)
  */
-export async function deleteUploadedFile(publicPath: string): Promise<boolean> {
+export async function deleteUploadedFile(
+  publicIdOrUrl: string,
+): Promise<boolean> {
   try {
-    const { unlink } = await import("fs/promises");
-    const fullPath = path.join(process.cwd(), "public", publicPath);
-    if (existsSync(fullPath)) {
-      await unlink(fullPath);
-      return true;
+    // If given a full URL, extract public_id
+    let publicId = publicIdOrUrl;
+    if (publicIdOrUrl.startsWith("http")) {
+      // Extract public_id from Cloudinary URL
+      // URL format: https://res.cloudinary.com/<cloud>/image/upload/v123/folder/filename.ext
+      const parts = publicIdOrUrl.split("/upload/");
+      if (parts[1]) {
+        // Remove version prefix (v123/) and file extension
+        publicId = parts[1].replace(/^v\d+\//, "").replace(/\.[^.]+$/, "");
+      }
     }
-    return false;
+    const result = await cloudinary.uploader.destroy(publicId);
+    return result.result === "ok";
   } catch {
     return false;
   }

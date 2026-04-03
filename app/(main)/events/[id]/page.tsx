@@ -21,6 +21,7 @@ import {
   Users,
   CheckCircle2,
   Share2,
+  Loader2,
 } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -256,7 +257,14 @@ export default function EventDetailPage() {
                     onClick={handleCancelRegistration}
                     disabled={regLoading}
                   >
-                    {regLoading ? "Cancelling..." : "Cancel Registration"}
+                    {regLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Cancelling...
+                      </>
+                    ) : (
+                      "Cancel Registration"
+                    )}
                   </Button>
                 </div>
               ) : (
@@ -269,13 +277,18 @@ export default function EventDetailPage() {
                     (spotsLeft !== null && spotsLeft <= 0)
                   }
                 >
-                  {regLoading
-                    ? "Registering..."
-                    : deadlinePassed
-                      ? "Registration Closed"
-                      : spotsLeft !== null && spotsLeft <= 0
-                        ? "Event Full"
-                        : "Register Now"}
+                  {regLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Registering...
+                    </>
+                  ) : deadlinePassed ? (
+                    "Registration Closed"
+                  ) : spotsLeft !== null && spotsLeft <= 0 ? (
+                    "Event Full"
+                  ) : (
+                    "Register Now"
+                  )}
                 </Button>
               )}
             </div>

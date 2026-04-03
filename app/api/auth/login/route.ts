@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { auth } from "@/lib/auth";
 import { signInSchema } from "@/lib/validators/auth";
 import {
   successResponse,
@@ -11,8 +12,7 @@ import {
  * POST /api/auth/login
  * Custom login endpoint with validation
  *
- * This endpoint validates the login data before passing it to Better Auth.
- * It provides better error messages and user-friendly responses.
+ * Calls Better Auth directly (no self-fetch) to avoid CSRF / port / JSON issues.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -27,28 +27,22 @@ export async function POST(request: NextRequest) {
 
     const { email, password, rememberMe } = validationResult.data;
 
-    // Forward to Better Auth signin endpoint
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const authResponse = await fetch(`${appUrl}/api/auth/sign-in/email`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Origin: appUrl,
-      },
-      body: JSON.stringify({
-        email,
-        password,
-        rememberMe,
-      }),
+    // Call Better Auth directly — returns a standard Response with Set-Cookie
+    const authResponse = await auth.api.signInEmail({
+      body: { email, password, rememberMe },
+      asResponse: true,
     });
 
-    const authData = await authResponse.json();
-
     if (!authResponse.ok) {
-      // Handle Better Auth errors with user-friendly messages
-      const errorMessage = authData.message || authData.error || "Login failed";
+      // Try to parse JSON error, fall back to generic message
+      let errorMessage = "Login failed";
+      try {
+        const errData = await authResponse.json();
+        errorMessage = errData.message || errData.error || errorMessage;
+      } catch {
+        // response body was not JSON — use generic message
+      }
 
-      // Check for specific error types
       if (
         errorMessage.toLowerCase().includes("invalid") ||
         errorMessage.toLowerCase().includes("incorrect") ||
@@ -63,6 +57,8 @@ export async function POST(request: NextRequest) {
 
       return errorResponse(errorMessage, authResponse.status);
     }
+
+    const authData = await authResponse.json();
 
     // Get cookies from Better Auth response to forward to client
     const cookies = authResponse.headers.get("set-cookie");

@@ -12,9 +12,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "CampusConnect — College Event Aggregator",
+  title: "CollegeEventAggregator — College Event Aggregator",
   description:
     "Discover and manage college events across campuses. Browse events, register with a click, and stay connected with your campus community.",
+  icons: {
+    icon: "/logo.jpg",
+    apple: "/logo.jpg",
+  },
 };
 
 export default function RootLayout({

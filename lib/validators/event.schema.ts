@@ -73,6 +73,7 @@ export const eventQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).default(10),
   status: z.enum(["upcoming", "closed", "completed"]).optional(),
   collegeId: z.string().optional(),
+  organizerId: z.string().optional(),
   category: z
     .enum([
       "workshop",

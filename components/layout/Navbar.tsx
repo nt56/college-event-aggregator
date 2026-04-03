@@ -64,7 +64,7 @@ export function Navbar() {
               />
             </div>
             <span className="text-xl font-bold tracking-tight">
-              Campus<span className="text-primary">Connect</span>
+              CollegeEvent<span className="text-primary">Aggregator</span>
             </span>
           </Link>
 

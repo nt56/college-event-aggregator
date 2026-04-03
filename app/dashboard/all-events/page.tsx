@@ -80,10 +80,14 @@ export default function AllEventsPage() {
 
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
         {isLoading ? (
-          <div className="p-4 space-y-4">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <TableRowSkeleton key={i} cols={5} />
-            ))}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <TableRowSkeleton key={i} cols={6} />
+                ))}
+              </tbody>
+            </table>
           </div>
         ) : events.length === 0 ? (
           <div className="p-12">

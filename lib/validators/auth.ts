@@ -139,6 +139,7 @@ export const updateProfileSchema = z.object({
       { message: "You must be at least 16 years old" },
     )
     .optional(),
+  profileImage: z.string().url("Invalid image URL").optional(),
 });
 
 // Export types

@@ -113,7 +113,12 @@ export default function EventForm({
     setUploadingImage(true);
     try {
       const res = await uploadService.uploadFile(file, "events");
-      setImageUrl(res.filePath);
+      const url = res.data?.filePath || res.filePath;
+      if (!url) {
+        toast.error("Upload failed: no file path returned");
+        return;
+      }
+      setImageUrl(url);
       toast.success("Image uploaded");
     } catch {
       toast.error("Failed to upload image");
@@ -446,13 +451,16 @@ export default function EventForm({
               disabled={submitting}
               className="bg-primary text-white hover:bg-primary/90 px-8"
             >
-              {submitting
-                ? isEditing
-                  ? "Updating..."
-                  : "Creating..."
-                : isEditing
-                  ? "Update Event"
-                  : "Create Event"}
+              {submitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {isEditing ? "Updating..." : "Creating..."}
+                </>
+              ) : isEditing ? (
+                "Update Event"
+              ) : (
+                "Create Event"
+              )}
             </Button>
             <Button
               type="button"

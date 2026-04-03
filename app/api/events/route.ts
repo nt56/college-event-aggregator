@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
       limit: searchParams.get("limit") || "10",
       status: searchParams.get("status") || undefined,
       collegeId: searchParams.get("collegeId") || undefined,
+      organizerId: searchParams.get("organizerId") || undefined,
       category: searchParams.get("category") || undefined,
       search: searchParams.get("search") || undefined,
       sortBy: searchParams.get("sortBy") || "date",
@@ -41,6 +42,7 @@ export async function GET(request: NextRequest) {
       limit,
       status,
       collegeId,
+      organizerId,
       category,
       search,
       sortBy,
@@ -57,6 +59,10 @@ export async function GET(request: NextRequest) {
 
     if (collegeId) {
       filter.collegeId = new mongoose.Types.ObjectId(collegeId);
+    }
+
+    if (organizerId && mongoose.Types.ObjectId.isValid(organizerId)) {
+      filter.organizerId = new mongoose.Types.ObjectId(organizerId);
     }
 
     if (category) {

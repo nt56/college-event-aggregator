@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { auth } from "@/lib/auth";
 import { signUpSchema } from "@/lib/validators/auth";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
@@ -41,28 +42,25 @@ export async function POST(request: NextRequest) {
     // Full name for Better Auth (it requires a "name" field)
     const fullName = `${firstName} ${lastName}`;
 
-    // Forward to Better Auth signup endpoint
-    // Better Auth stores: name, email, password (hashed), role="student" (default)
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const authResponse = await fetch(`${appUrl}/api/auth/sign-up/email`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Origin: appUrl,
-      },
-      body: JSON.stringify({
+    // Call Better Auth directly — no self-fetch
+    const authResponse = await auth.api.signUpEmail({
+      body: {
         name: fullName,
         email,
         password,
         // role is NOT sent — defaults to "student" in Better Auth config
-      }),
+      },
+      asResponse: true,
     });
 
-    const authData = await authResponse.json();
-
     if (!authResponse.ok) {
-      const errorMessage =
-        authData.message || authData.error || "Registration failed";
+      let errorMessage = "Registration failed";
+      try {
+        const errData = await authResponse.json();
+        errorMessage = errData.message || errData.error || errorMessage;
+      } catch {
+        // response body was not JSON
+      }
 
       if (
         errorMessage.toLowerCase().includes("already exists") ||
@@ -73,6 +71,8 @@ export async function POST(request: NextRequest) {
 
       return errorResponse(errorMessage, authResponse.status);
     }
+
+    const authData = await authResponse.json();
 
     // Create MongoDB user profile with extended fields
     await connectDB();

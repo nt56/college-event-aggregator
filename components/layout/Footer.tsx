@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarCheck2 } from "lucide-react";
+import Image from "next/image";
 
 export function Footer() {
   return (
@@ -9,11 +9,15 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-1">
             <div className="flex items-center gap-2 mb-6">
-              <div className="bg-primary p-1.5 rounded-lg">
-                <CalendarCheck2 className="h-5 w-5 text-white" />
-              </div>
+              <Image
+                src="/logo.jpg"
+                alt="CollegeEventAggregator Logo"
+                width={40}
+                height={40}
+                className="rounded-lg"
+              />
               <span className="text-xl font-bold tracking-tight text-primary">
-                CampusConnect
+                CollegeEvent<span className="text-primary">Aggregator</span>
               </span>
             </div>
             <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">

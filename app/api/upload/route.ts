@@ -39,7 +39,11 @@ export async function POST(request: NextRequest) {
     }
 
     return successResponse(
-      { filePath: result.filePath, fileName: result.fileName },
+      {
+        filePath: result.filePath,
+        fileName: result.fileName,
+        publicId: result.publicId,
+      },
       "File uploaded successfully",
       201,
     );

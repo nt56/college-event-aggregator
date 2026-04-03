@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { TableRowSkeleton } from "@/components/common/Skeletons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,7 @@ import {
   Trash2,
   CheckCircle2,
   XCircle,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -44,6 +46,7 @@ export default function CollegeManagementPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formName, setFormName] = useState("");
   const [formLocation, setFormLocation] = useState("");
+  const [formIsVerified, setFormIsVerified] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -54,6 +57,7 @@ export default function CollegeManagementPage() {
     setEditingId(null);
     setFormName("");
     setFormLocation("");
+    setFormIsVerified(false);
     setFormOpen(true);
   };
 
@@ -62,10 +66,12 @@ export default function CollegeManagementPage() {
     _id?: string;
     name: string;
     location?: string;
+    isVerified?: boolean;
   }) => {
     setEditingId(college.id || college._id || null);
     setFormName(college.name);
     setFormLocation(college.location || "");
+    setFormIsVerified(college.isVerified || false);
     setFormOpen(true);
   };
 
@@ -76,7 +82,11 @@ export default function CollegeManagementPage() {
     }
     setSubmitting(true);
     try {
-      const data = { name: formName.trim(), location: formLocation.trim() || undefined };
+      const data = {
+        name: formName.trim(),
+        location: formLocation.trim() || undefined,
+        ...(editingId ? { isVerified: formIsVerified } : {}),
+      };
       if (editingId) {
         await dispatch(updateCollege({ id: editingId, data })).unwrap();
         toast.success("College updated");
@@ -111,7 +121,7 @@ export default function CollegeManagementPage() {
     (c) =>
       !search ||
       c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.location?.toLowerCase().includes(search.toLowerCase())
+      c.location?.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -148,9 +158,13 @@ export default function CollegeManagementPage() {
       {/* Table */}
       <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
         {isLoading ? (
-          <div className="p-4 space-y-4">
-            <TableRowSkeleton cols={4} />
-            <TableRowSkeleton cols={4} />
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                <TableRowSkeleton cols={5} />
+                <TableRowSkeleton cols={5} />
+              </tbody>
+            </table>
           </div>
         ) : filteredColleges.length === 0 ? (
           <div className="p-12">
@@ -277,6 +291,22 @@ export default function CollegeManagementPage() {
                 onChange={(e) => setFormLocation(e.target.value)}
               />
             </div>
+            {editingId && (
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="text-sm font-medium block">
+                    Verified Status
+                  </label>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Toggle to verify or unverify this college
+                  </p>
+                </div>
+                <Switch
+                  checked={formIsVerified}
+                  onCheckedChange={setFormIsVerified}
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setFormOpen(false)}>
@@ -287,11 +317,16 @@ export default function CollegeManagementPage() {
               onClick={handleSubmit}
               disabled={submitting}
             >
-              {submitting
-                ? "Saving..."
-                : editingId
-                  ? "Update"
-                  : "Create"}
+              {submitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : editingId ? (
+                "Update"
+              ) : (
+                "Create"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

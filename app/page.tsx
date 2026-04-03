@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -114,6 +115,18 @@ export default function LandingPage() {
               </Button>
             </Link>
           </div>
+        </div>
+
+        {/* Hero illustration */}
+        <div className="max-w-4xl mx-auto mt-12 px-4 animate-fade-in-up delay-300">
+          <Image
+            src="/hero.png"
+            alt="College Event Aggregator – students discovering campus events"
+            width={1024}
+            height={1024}
+            className="w-full h-auto rounded-2xl shadow-2xl border-4 border-white dark:border-slate-800"
+            priority
+          />
         </div>
 
         {/* Background decoration */}
